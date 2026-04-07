@@ -1,0 +1,69 @@
+package com.example.HenriPank.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+
+@Entity
+public class Account {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotBlank
+    @Column(unique = true)
+    private String iban;
+
+    @Min(value = 0)
+    private Double balance;
+
+    @ManyToOne
+    @JoinColumn(name = "user_account")
+    private User user;
+
+    public Account() {}
+
+    public Account(Long id, String iban, Double balance) {
+        this.id = id;
+        this.iban = iban;
+        this.balance = balance;
+    }
+
+    public Account(String iban, Double balance) {
+        this.iban = iban;
+        this.balance = balance;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getIban() {
+        return iban;
+    }
+
+    public Double getBalance() {
+        return balance;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setIban(String iban) {
+        this.iban = iban;
+    }
+
+    public void setBalance(Double balance) {
+        this.balance = balance;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
+    }
+}
