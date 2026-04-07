@@ -1,37 +1,32 @@
-# HenriPank API
+# 🏦 HenriPank API
 
-HenriPank is a simple, foundational REST API built with Spring Boot for managing banking users and their associated accounts.
+HenriPank is a robust REST API built with **Spring Boot 3** for managing banking users and secure financial transactions. This project demonstrates industry-standard backend practices, focusing on financial precision, data integrity, and clean architecture.
 
-This project demonstrates core backend development concepts, including layered architecture, relational database mapping (ORM), data validation, and the Data Transfer Object (DTO) pattern.
+## ✨ Key Features (Implemented in Session 1)
+* **Financial Precision:** Uses `BigDecimal` for all monetary calculations to avoid floating-point errors (common with `Double`).
+* **Transactional Integrity:** Implements `@Transactional` to ensure atomicity during money transfers—either the whole transfer succeeds, or no changes are made (rollback).
+* **Global Exception Handling:** Uses `@RestControllerAdvice` to intercept errors (e.g., "Insufficient funds") and return consistent, user-friendly JSON responses.
+* **Layered Architecture:** Clear separation between Controllers, Services, Repositories, and Data Transfer Objects (DTOs).
 
 ## 🛠️ Technologies Used
-* **Java 17+** * **Spring Boot 3.x**
-* **Spring Web** (REST APIs)
-* **Spring Data JPA / Hibernate** (Database access and ORM)
-* **Jakarta Validation** (Input validation)
-
-## 🏗️ Architecture
-The application follows a standard layered architecture:
-* **Controllers:** Handle incoming HTTP requests and route them to services.
-* **Services:** Contain the core business logic (e.g., automatically generating a bank account when a new user registers).
-* **Repositories:** Interface with the database using Spring Data JPA.
-* **Models (Entities):** Represent the database tables (`bank_users`, `Account`) with a mapped One-to-Many / Many-to-One relationship.
-* **DTOs:** Filter and shape the data being returned to the client (e.g., `AccountDTO` hides the internal database ID and user reference).
+* **Java 17+**
+* **Spring Boot 3.x**
+* **Spring Data JPA / Hibernate** (ORM & Database access)
+* **PostgreSQL** (Production-ready relational database)
+* **Jakarta Validation** (Server-side input validation)
+* **Maven** (Dependency management)
 
 ---
 
 ## 🚀 API Endpoints
 
 ### 1. Add a New User
-Creates a new user in the system. Upon successful creation, the application automatically generates a new bank account with a random `EE` IBAN and a starting balance of `0.0` for the user.
+Creates a user and automatically generates a bank account with a unique `EE` IBAN and a starting balance of `0.00`.
 
-* **URL:** `/api/user/add`
-* **Method:** `POST`
-* **Content-Type:** `application/json`
-
-**Request Body:**
+* **URL:** `POST /api/user/add`
+* **Body:**
 ```json
 {
-  "name": "Liisu",
-  "email": "Liisu@gmail.com"
+  "name": "Henri Allevi",
+  "email": "henri@pank.ee"
 }

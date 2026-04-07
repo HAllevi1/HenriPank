@@ -1,7 +1,8 @@
-POST http://localhost:8080/api/user/add
+POST http://localhost:8081/api/transfer
 Content-Type: application/json
 
 {
-  "name": "Liisu",
-  "email": "Liisu@gmail.com"
+  "fromIban": "EE602753",
+  "toIban": "EE945644",
+  "amount": 200
 }

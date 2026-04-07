@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
+import java.math.BigDecimal;
+
 @Entity
 public class Account {
 
@@ -16,7 +18,7 @@ public class Account {
     private String iban;
 
     @Min(value = 0)
-    private Double balance;
+    private BigDecimal balance;
 
     @ManyToOne
     @JoinColumn(name = "user_account")
@@ -24,13 +26,13 @@ public class Account {
 
     public Account() {}
 
-    public Account(Long id, String iban, Double balance) {
+    public Account(Long id, String iban, BigDecimal balance) {
         this.id = id;
         this.iban = iban;
         this.balance = balance;
     }
 
-    public Account(String iban, Double balance) {
+    public Account(String iban, BigDecimal balance) {
         this.iban = iban;
         this.balance = balance;
     }
@@ -43,7 +45,7 @@ public class Account {
         return iban;
     }
 
-    public Double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
@@ -55,7 +57,7 @@ public class Account {
         this.iban = iban;
     }
 
-    public void setBalance(Double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 
