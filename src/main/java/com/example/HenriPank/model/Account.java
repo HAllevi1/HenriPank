@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 public class Account {
@@ -23,6 +24,9 @@ public class Account {
     @ManyToOne
     @JoinColumn(name = "user_account")
     private User user;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL) //Bidirectional relation with Transaction account, Cascade because when we want to delete the account, it also deletes the transactions and we get no error.
+    private List<Transaction> transactions;
 
     public Account() {}
 
@@ -67,5 +71,9 @@ public class Account {
 
     public User getUser() {
         return user;
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
     }
 }

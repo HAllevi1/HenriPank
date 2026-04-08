@@ -1,6 +1,7 @@
 package com.example.HenriPank.controller;
 
 import com.example.HenriPank.dto.AccountDTO;
+import com.example.HenriPank.dto.TransactionDTO;
 import com.example.HenriPank.dto.TransferRequestDTO;
 import com.example.HenriPank.model.Account;
 import com.example.HenriPank.service.AccountService;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Random;
 
 @RestController
@@ -36,6 +38,9 @@ public class UserController {
         accountService.openAccount(user.getEmail(), new Account("EE" + rand.nextLong(0, 1000000), BigDecimal.ZERO));
         return "User added successfully";
     }
+
+    @GetMapping("/api/user/transactions/{iban}")
+    public List<TransactionDTO> getTransaction(@PathVariable String iban) { return accountService.getTransactions(iban); }
 
     @GetMapping("/api/user/accountinfo/{iban}")
     public AccountDTO getAccountInfo(@PathVariable String iban) {
