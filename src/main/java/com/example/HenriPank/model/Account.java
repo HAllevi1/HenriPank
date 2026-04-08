@@ -41,39 +41,35 @@ public class Account {
         this.balance = balance;
     }
 
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    //Getters
     public Long getId() {
         return id;
     }
-
     public String getIban() {
         return iban;
     }
-
     public BigDecimal getBalance() {
         return balance;
     }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setIban(String iban) {
-        this.iban = iban;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public User getUser() {
         return user;
     }
 
-    public List<Transaction> getTransactions() {
-        return transactions;
+    //Setters
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public void setIban(String iban) {
+        this.iban = iban;
+    }
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
+    public void setUser(User user) {
+        this.user = user;
     }
 }
