@@ -127,8 +127,8 @@ public class AccountService {
         fromAccount.setBalance(fromAccount.getBalance().subtract(request.getAmount()));
         toAccount.setBalance(toAccount.getBalance().add(request.getAmount()));
 
-        transactionRepository.save(new Transaction(request.getAmount().negate(), fromAccount.getIban(), toAccount.getIban(), "Hardcoded Transaction Desc", LocalDateTime.now(), fromAccount));
-        transactionRepository.save(new Transaction(request.getAmount(), fromAccount.getIban(), toAccount.getIban(), "Hardcoded Transaction Desc", LocalDateTime.now(), toAccount));
+        transactionRepository.save(new Transaction(request.getAmount().negate(), fromAccount.getIban(), toAccount.getIban(), request.getDescription(), LocalDateTime.now(), fromAccount));
+        transactionRepository.save(new Transaction(request.getAmount(), fromAccount.getIban(), toAccount.getIban(), request.getDescription(), LocalDateTime.now(), toAccount));
 
         accountRepository.save(fromAccount);
         accountRepository.save(toAccount);

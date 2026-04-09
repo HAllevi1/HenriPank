@@ -4,5 +4,6 @@ Content-Type: application/json
 {
   "fromIban": "EE602753",
   "toIban": "EE945644",
-  "amount": 200
+  "amount": 20,
+  "description": "Lõunasöök"
 }
