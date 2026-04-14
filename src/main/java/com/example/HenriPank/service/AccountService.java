@@ -105,13 +105,15 @@ public class AccountService {
     }
 
     /**
-     * Making a secure money transfer between two accounts.
-     * Checking balance, doing (debit/credit)
-     * Saves transactions to history
+     * Executes an atomic money transfer between two bank accounts.
      *
-     * @param request TransferRequestDTO, that includes sender/receiver IBAN-s and amount.
-     * @return same DTO for confirmation
-     * @throws RuntimeException if there is no such account or balance is not enough.
+     * Validates account existence, ensures sufficient funds are available,
+     * and persists both debit/credit records to the transaction ledger
+     * while updating account balances.
+     *
+     * @param request DTO containing sender/receiver IBANs and the transfer amount.
+     * @return The original request DTO upon successful transaction processing.
+     * @throws RuntimeException if accounts are not found or the sender has an insufficient balance.
      */
     @Transactional //If anything goes wrong with server, transactional should rollback
     public TransferRequestDTO transferMoney(TransferRequestDTO request) {

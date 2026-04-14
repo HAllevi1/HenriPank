@@ -1,9 +1,7 @@
-POST http://localhost:8081/api/transfer
+POST http://localhost:8081/api/login
 Content-Type: application/json
 
 {
-  "fromIban": "EE602753",
-  "toIban": "EE945644",
-  "amount": 20,
-  "description": "Lõunasöök"
+  "email": "Seller@gmail.com",
+  "password": "mustikas123"
 }

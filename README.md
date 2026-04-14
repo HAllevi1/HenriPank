@@ -1,55 +1,55 @@
-#  HenriPank API
+# 🏦 HenriPank API
 
 HenriPank is a robust REST API built with **Spring Boot 3** for managing banking users and secure financial transactions. This project demonstrates industry-standard backend practices, focusing on financial precision, data integrity, and clean architecture.
 
-##  Key Features
+## ✨ Key Features
 
-###  Financial Integrity 
-* **Precision Handling:** Uses `BigDecimal` for all monetary calculations to avoid floating point errors.
-* **Atomic Transfers:** Implements `@Transactional` to ensure that money never "disappears" during a transfer. If any part of the process fails, the database rolls back to its original state.
-* **Global Exception Handling:** Uses `@RestControllerAdvice` to provide clean, consistent JSON error messages (e.g., "Insufficient funds").
+### 🛡️ Advanced Security (Session 3 - NEW)
+* **JWT Authentication:** Implements stateless authentication using JSON Web Tokens. Users receive a "digital wristband" (token) upon login.
+* **Password Hashing:** Uses **BCrypt** with a high cost factor to ensure user passwords are never stored in plain text.
+* **Stateless Security Filter:** A custom `JwtAuthenticationFilter` intercepts every request to validate tokens before they reach the controller.
+* **Secure Access Control:** Granular permission management where registration and login are public, but financial data is strictly protected.
 
-###  Audit Trail & Security
-* **Double-Entry Ledger:** Every transfer automatically generates two transaction records (Debit for sender, Credit for receiver) for a full audit trail.
-* **Relational Mapping:** Leverages JPA `@OneToMany` and `@ManyToOne` relationships to link transactions directly to accounts.
-* **Data Privacy (DTOs):** Uses Data Transfer Objects (`TransactionDTO`, `AccountDTO`) to prevent infinite recursion and to hide sensitive internal database IDs from the client.
-* **Clean Documentation:** All core service methods are documented using standard Javadoc for better maintainability.
+### 📜 Audit Trail & Integrity
+* **Double-Entry Ledger:** Every transfer automatically generates two transaction records (Debit/Credit) for a full audit trail.
+* **Atomic Transfers:** Implements `@Transactional` to ensure that money transfers are all-or-nothing operations.
+* **Financial Precision:** Uses `BigDecimal` for all monetary calculations to eliminate floating-point errors.
+* **Data Privacy (DTOs):** Uses Data Transfer Objects to separate internal database logic from the public API.
 
-## ️ Technologies Used
+## 🛠️ Technologies Used
 * **Java 17+**
 * **Spring Boot 3.x**
+* **Spring Security** (Authentication & Authorization)
+* **JJWT** (JSON Web Token library)
 * **Spring Data JPA / Hibernate**
-* **PostgreSQL / H2** (Database)
-* **Jakarta Validation**
+* **PostgreSQL / H2**
 * **Maven**
 
 ---
 
-##  API Endpoints
+## 🚀 API Endpoints
 
-### 1. User & Account Management
+### 1. Authentication & Access
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/user/add` | Register a new user and bank account. | No |
+| `POST` | `/api/login` | Authenticate and receive a JWT Token. | No |
+
+### 2. Banking Operations (JWT Required)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `POST` | `/api/user/add` | Creates a user and auto-generates a bank account (EE IBAN). |
-| `GET` | `/api/user/{id}` | Retrieves user profile by database ID. |
-| `GET` | `/api/user/accountinfo/{iban}` | Returns account balance and IBAN via `AccountDTO`. |
-
-### 2. Banking Operations
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/transfer` | Executes a secure transfer between two accounts with a description. |
-| `GET` | `/api/user/transactions/{iban}` | Returns the full transaction history for a specific account. |
+| `GET` | `/api/user/accountinfo/{iban}` | View account balance and details. |
+| `POST` | `/api/transfer` | Execute a secure money transfer. |
+| `GET` | `/api/user/transactions/{iban}` | View full transaction history. |
 
 ---
 
-##  Example Requests
+## 📬 Example Workflow
 
-### Money Transfer
-**POST** `/api/transfer`
+### 1. Login to get Token
+**POST** `/api/login`
 ```json
 {
-  "fromIban": "EE602753",
-  "toIban": "EE945644",
-  "amount": 20.00,
-  "description": "Lõunasöök"
+  "email": "henri@pank.ee",
+  "password": "securePassword123"
 }

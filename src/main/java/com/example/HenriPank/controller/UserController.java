@@ -57,7 +57,7 @@ public class UserController {
      * @param iban The IBAN of the account.
      * @return An AccountDTO containing the account details.
      */
-    @GetMapping("/api/user/accountinfo/{iban}")
+    @GetMapping("/api/user/account/{iban}")
     public AccountDTO getAccountInfo(@PathVariable String iban) {
         return accountService.getAccountInfo(iban);
     }
