@@ -1,55 +1,206 @@
 # HenriPank API
 
-HenriPank is a robust REST API built with **Spring Boot 3** for managing banking users and secure financial transactions. This project demonstrates industry-standard backend practices, focusing on financial precision, data integrity, and clean architecture.
+HenriPank is a REST API built with Spring Boot 3 for managing banking users and secure financial transactions. The project simulates core banking operations while focusing on transactional integrity, security, and clean backend architecture.
+
+---
 
 ## Key Features
 
 ### Advanced Security
-* **JWT Authentication:** Implements stateless authentication using JSON Web Tokens. Users receive a "digital wristband" (token) upon login.
-* **Password Hashing:** Uses **BCrypt** with a high cost factor to ensure user passwords are never stored in plain text.
-* **Stateless Security Filter:** A custom `JwtAuthenticationFilter` intercepts every request to validate tokens before they reach the controller.
-* **Secure Access Control:** Granular permission management where registration and login are public, but financial data is strictly protected.
+- JWT-based stateless authentication (24h validity)
+- Password hashing using BCrypt (`PasswordEncoder`)
+- Custom `JwtAuthenticationFilter` for request validation
+- Public endpoints for authentication, protected endpoints for all financial operations
 
-### Audit Trail & Integrity
-* **Double-Entry Ledger:** Every transfer automatically generates two transaction records (Debit/Credit) for a full audit trail.
-* **Atomic Transfers:** Implements `@Transactional` to ensure that money transfers are all-or-nothing operations.
-* **Financial Precision:** Uses `BigDecimal` for all monetary calculations to eliminate floating-point errors.
-* **Data Privacy (DTOs):** Uses Data Transfer Objects to separate internal database logic from the public API.
+---
+
+### Audit Trail and Data Integrity
+- Double-entry ledger (debit and credit records per transfer)
+- Atomic transactions using `@Transactional`
+- Financial precision with `BigDecimal`
+- Centralized error handling via `GlobalExceptionHandler`
+
+---
 
 ## Technologies Used
-* **Java 17+**
-* **Spring Boot 3.x**
-* **Spring Security** (Authentication & Authorization)
-* **JJWT** (JSON Web Token library)
-* **Spring Data JPA / Hibernate**
-* **PostgreSQL / H2**
-* **Maven**
+
+- Java 17
+- Spring Boot 3.x
+- Spring Security
+- JJWT
+- Spring Data JPA / Hibernate
+- H2 / PostgreSQL
+- Maven
 
 ---
 
 ## API Endpoints
 
-### 1. Authentication & Access
-| Method | Endpoint | Description | Auth Required |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/user/add` | Register a new user and bank account. | No |
-| `POST` | `/api/login` | Authenticate and receive a JWT Token. | No |
+### Authentication and User Management
 
-### 2. Banking Operations (JWT Required)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/api/user/accountinfo/{iban}` | View account balance and details. |
-| `POST` | `/api/transfer` | Execute a secure money transfer. |
-| `GET` | `/api/user/transactions/{iban}` | View full transaction history. |
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/user/add` | Register a new user and create an account with a generated IBAN | No |
+| POST | `/api/login` | Authenticate user and receive JWT token | No |
+| GET | `/api/user/{id}` | Retrieve user profile by ID | Yes |
+
+---
+
+### Banking Operations
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/user/account/{iban}` | Retrieve account details and balance | Yes |
+| GET | `/api/user/transactions/{iban}` | Retrieve transaction history | Yes |
+| POST | `/api/transfer` | Execute money transfer between accounts | Yes |
 
 ---
 
 ## Example Workflow
 
-### 1. Login to get Token
+### 1. Create a New User
+
+**POST** `/api/user/add`
+
+```json
+{
+  "name": "Henri",
+  "email": "henri@pank.ee",
+  "password": "securePassword123"
+}
+```
+
+---
+
+### 2. Login
+
 **POST** `/api/login`
+
 ```json
 {
   "email": "henri@pank.ee",
   "password": "securePassword123"
 }
+```
+
+Response:
+```
+<JWT_TOKEN>
+```
+
+Use in requests:
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+---
+
+### 3. Transfer Money
+
+**POST** `/api/transfer`
+
+Headers:
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+Body:
+```json
+{
+  "fromIban": "EE12345",
+  "toIban": "EE67890",
+  "amount": 150.50,
+  "description": "Monthly Rent"
+}
+```
+
+---
+
+## Business Rules
+
+- Transfers are only executed if the sender has sufficient balance
+- Both sender and receiver accounts must exist
+- Each transfer creates:
+    - One debit transaction
+    - One credit transaction
+- All transfers are atomic (either fully succeed or fail)
+
+---
+
+## Data Model
+
+Core entities:
+
+- **User**
+- **Account**
+- **Transaction**
+
+Each transaction includes:
+- amount (`BigDecimal`)
+- Two records
+- associated account
+- timestamp
+- optional description
+
+---
+
+## Error Handling
+
+All errors return a consistent structure:
+
+```json
+{
+  "status": 404,
+  "message": "User not found",
+  "timestamp": "2023-10-27T10:00:00"
+}
+```
+
+### Common Status Codes
+
+| Code | Meaning |
+|------|--------|
+| 401 | Unauthorized |
+| 404 | Resource not found |
+| 500 | Internal server error |
+
+---
+
+## Running the Project
+
+1. Clone the repository
+2. Run:
+   ```
+   mvn spring-boot:run
+   ```
+3. Application runs at:
+   ```
+   http://localhost:8080
+   ```
+4. Use Postman or curl to test endpoints
+
+---
+
+## Architecture Overview
+
+- Layered architecture:
+    - Controller → Service → Repository
+- DTO pattern for request and response separation
+- Centralized exception handling
+- Stateless authentication design
+
+---
+
+## Future Improvements
+
+- Role-based access control (admin/user roles)
+- Refresh token implementation
+- Integration and unit testing
+- Docker containerization
+- Rate limiting for security
+
+---
+
+## License
+
+This project is for educational and portfolio purposes.
