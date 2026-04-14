@@ -1,152 +1,100 @@
 # HenriPank API
 
-HenriPank is a REST API built with Spring Boot 3 for managing banking users and secure financial transactions. The project simulates core banking operations while focusing on transactional integrity, security, and clean backend architecture.
+I built this project to practice backend development beyond basic CRUD apps. The goal was to simulate a simple banking system where users can register, log in, and transfer money between accounts while handling things like transactions, security, and data consistency properly.
 
 ---
 
-## Key Features
+## What this does
 
-### Advanced Security
-- JWT-based stateless authentication (24h validity)
-- Password hashing using BCrypt (`PasswordEncoder`)
-- Custom `JwtAuthenticationFilter` for request validation
-- Public endpoints for authentication, protected endpoints for all financial operations
+The API handles:
 
----
+- User registration and login
+- Account creation with a generated IBAN
+- Viewing account details and transaction history
+- Transferring money between accounts
 
-### Audit Trail and Data Integrity
-- Double-entry ledger (debit and credit records per transfer)
-- Atomic transactions using `@Transactional`
-- Financial precision with `BigDecimal`
-- Centralized error handling via `GlobalExceptionHandler`
+Nothing fancy on the surface, but under the hood I focused on getting the important backend details right.
 
 ---
 
-## Technologies Used
+## Tech stack
 
 - Java 17
-- Spring Boot 3.x
+- Spring Boot
 - Spring Security
-- JJWT
-- Spring Data JPA / Hibernate
+- JPA / Hibernate
+- JWT (JJWT library)
 - H2 / PostgreSQL
 - Maven
 
 ---
 
-## API Endpoints
+## Authentication
 
-### Authentication and User Management
+Authentication was honestly the hardest part of this project.
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/user/add` | Register a new user and create an account with a generated IBAN | No |
-| POST | `/api/login` | Authenticate user and receive JWT token | No |
-| GET | `/api/user/{id}` | Retrieve user profile by ID | Yes |
+I used JWT because I didn’t want to deal with server-side sessions. The flow is:
 
----
+- User logs in with email and password
+- If valid, the server returns a JWT
+- Every request after that must include:
+  ```
+  Authorization: Bearer <token>
+  ```
+- A custom `JwtAuthenticationFilter` checks the token before the request reaches the controller
 
-### Banking Operations
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/user/account/{iban}` | Retrieve account details and balance | Yes |
-| GET | `/api/user/transactions/{iban}` | Retrieve transaction history | Yes |
-| POST | `/api/transfer` | Execute money transfer between accounts | Yes |
+Passwords are hashed using BCrypt.
 
 ---
 
-## Example Workflow
+## Transfers and money handling
 
-### 1. Create a New User
+This is the part I cared about the most.
 
-**POST** `/api/user/add`
+- Transfers are handled inside a `@Transactional` method
+- If anything fails (like insufficient balance), the whole operation rolls back
+- Each transfer creates:
+    - a DEBIT transaction for the sender
+    - a CREDIT transaction for the receiver
 
-```json
-{
-  "name": "Henri",
-  "email": "henri@pank.ee",
-  "password": "securePassword123"
-}
-```
+I used `BigDecimal` for all money values because floating-point errors in financial data are not acceptable.
 
 ---
 
-### 2. Login
+## API overview
 
-**POST** `/api/login`
+### Auth and users
 
-```json
-{
-  "email": "henri@pank.ee",
-  "password": "securePassword123"
-}
-```
+- `POST /api/user/add` → register user + create account
+- `POST /api/login` → get JWT token
+- `GET /api/user/{id}` → get user info (requires auth)
 
-Response:
-```
-<JWT_TOKEN>
-```
+### Banking
 
-Use in requests:
-```
-Authorization: Bearer <JWT_TOKEN>
-```
+- `GET /api/user/account/{iban}` → account details
+- `GET /api/user/transactions/{iban}` → transaction history
+- `POST /api/transfer` → transfer money
 
 ---
 
-### 3. Transfer Money
+## Example request
 
-**POST** `/api/transfer`
+Transfer money:
 
-Headers:
-```
-Authorization: Bearer <JWT_TOKEN>
-```
-
-Body:
 ```json
 {
   "fromIban": "EE12345",
   "toIban": "EE67890",
   "amount": 150.50,
-  "description": "Monthly Rent"
+  "description": "Rent"
 }
 ```
 
 ---
 
-## Business Rules
+## Error handling
 
-- Transfers are only executed if the sender has sufficient balance
-- Both sender and receiver accounts must exist
-- Each transfer creates:
-    - One debit transaction
-    - One credit transaction
-- All transfers are atomic (either fully succeed or fail)
-
----
-
-## Data Model
-
-Core entities:
-
-- **User**
-- **Account**
-- **Transaction**
-
-Each transaction includes:
-- amount (`BigDecimal`)
-- Two records
-- associated account
-- timestamp
-- optional description
-
----
-
-## Error Handling
-
-All errors return a consistent structure:
+Errors are handled globally and return something like:
 
 ```json
 {
@@ -156,51 +104,65 @@ All errors return a consistent structure:
 }
 ```
 
-### Common Status Codes
+---
 
-| Code | Meaning |
-|------|--------|
-| 401 | Unauthorized |
-| 404 | Resource not found |
-| 500 | Internal server error |
+## Challenges
+
+This wasn’t smooth to build.
+
+- **Spring Security + JWT**  
+  Took the most time. Getting the filter, authentication manager, and security context working together was confusing at first. I followed guides, then rewrote parts until I understood the flow.
+
+- **Circular dependencies**  
+  Hit this when services started depending on each other. Fixed it by separating responsibilities better and using DTOs instead of passing entities around.
+
+- **Transaction logic**  
+  Making sure transfers were safe required thinking through edge cases:
+    - what happens if balance is too low
+    - what if one side saves and the other fails  
+      `@Transactional` solved most of it, but I had to understand why.
 
 ---
 
-## Running the Project
+## Why I did it this way
 
-1. Clone the repository
+- **JWT over sessions**  
+  I didn’t want server-side session management. JWT keeps things stateless and simpler to scale.
+
+- **Double-entry transactions**  
+  It’s closer to how real systems work and makes debugging easier since every transfer is recorded from both sides.
+
+- **Layered structure (Controller → Service → Repository)**  
+  Keeps things readable and stops controllers from becoming a mess.
+
+---
+
+## Running the project
+
+1. Clone the repo
 2. Run:
    ```
    mvn spring-boot:run
    ```
-3. Application runs at:
+3. App starts on:
    ```
    http://localhost:8080
    ```
-4. Use Postman or curl to test endpoints
+
+Use Postman or curl to test endpoints.
 
 ---
 
-## Architecture Overview
+## Things I would improve
 
-- Layered architecture:
-    - Controller → Service → Repository
-- DTO pattern for request and response separation
-- Centralized exception handling
-- Stateless authentication design
-
----
-
-## Future Improvements
-
-- Role-based access control (admin/user roles)
-- Refresh token implementation
-- Integration and unit testing
-- Docker containerization
-- Rate limiting for security
+- Add refresh tokens
+- Add proper tests (unit + integration)
+- Dockerize the app
+- Add roles (admin/user)
+- Rate limiting for endpoints
 
 ---
 
-## License
+## Final note
 
-This project is for educational and portfolio purposes.
+This project was mainly about understanding how backend systems actually behave — especially around security and transactions — not just getting endpoints to work.
